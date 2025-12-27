@@ -1,5 +1,6 @@
 package hotel.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,5 +74,35 @@ public class Room {
      */
     public List<UnavailablePeriod> getUnavailablePeriods() {
         return unavailablePeriods;
+    }
+
+    /**
+     * Добавих отделен метод, които проверява дали два периода от време се застъпват.
+     */
+    private boolean periodsOverlap(LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2){
+        return !start1.isAfter(end2) && !start2.isAfter(end1);
+    }
+
+    /**
+     * Проверява дали стаята е свободна в даден период.
+     *
+     * @param from начална дата
+     * @param to крайна дата
+     * @return true ако стаята е свободна
+     */
+    public boolean isAvailable(LocalDate from, LocalDate to){
+        /** Проверка за резервации*/
+        for(Reservation r : reservations){
+            if(periodsOverlap(from, to, r.getFrom(), r.getTo())){
+                return false;
+            }
+        }
+        /** Проверка за недостъпни периоди*/
+        for (UnavailablePeriod u : unavailablePeriods){
+            if(periodsOverlap(from, to, u.getFrom(), u.getTo())){
+                return false;
+            }
+        }
+        return true;
     }
 }
