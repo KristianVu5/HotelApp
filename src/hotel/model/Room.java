@@ -105,4 +105,15 @@ public class Room {
         }
         return true;
     }
+
+    /**
+     * Добавя период, в който стаята е недостъпна.
+     *
+     * @param from начална дата
+     * @param to крайна дата
+     * @param note бележка
+     */
+    public void addUnavailablePeriod(LocalDate from, LocalDate to, String note){
+        unavailablePeriods.add(new UnavailablePeriod(from, to, note));
+    }
 }

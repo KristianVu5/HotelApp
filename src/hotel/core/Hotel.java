@@ -5,9 +5,8 @@ import hotel.model.Room;
 import hotel.model.UnavailablePeriod;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 /**
  * Класът Hotel представлява хотел и управлява всички стаи в него.
@@ -151,7 +150,6 @@ public class Hotel {
 
     /**
      * Обявява стая за временно недостъпна.
-     *
      * @param roomNumber номер на стаята
      * @param from начална дата
      * @param to крайна дата
@@ -166,5 +164,126 @@ public class Hotel {
 
         room.getUnavailablePeriods().add(new UnavailablePeriod(from, to ,note));
         return true;
+    }
+
+    /**
+     * Генерира справка за използването на стаите в даден период.
+     * @param from начална дата
+     * @param to крайна дата
+     * @return карта със стая и брой използвани дни
+     */
+    public Map<Integer, Long> getUsageReport(LocalDate from, LocalDate to){
+
+        Map<Integer, Long> result = new HashMap<>();
+
+        for(Room room : rooms){
+            long usedDays = 0;
+
+            for(Reservation r : room.getReservations()){
+                LocalDate start = r.getFrom().isAfter(from) ? r.getFrom() : from;
+
+                LocalDate end = r.getTo().isBefore(to) ? r.getTo() : to;
+
+                if(!start.isAfter(end)){
+                    usedDays += ChronoUnit.DAYS.between(start, end) + 1;
+                }
+            }
+
+            if(usedDays > 0){
+                result.put(room.getNumber(), usedDays);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Намира подходяща свободна стая с поне даден брой легла
+     * за определен период.
+     * @param beds минимален брой легла
+     * @param from начална дата
+     * @param to крайна дата
+     * @return намерената стая или null ако няма подходяща
+     */
+
+    public Room findRoom(int beds, LocalDate from, LocalDate to){
+        Room bestRoom = null;
+
+        for(Room room : rooms){
+            if(room.getBeds() < beds){
+                continue;
+            }
+
+            if(!room.isAvailable(from, to)){
+                continue;
+            }
+            if(bestRoom == null || room.getBeds() < bestRoom.getBeds()){
+                bestRoom = room;
+            }
+
+        }
+        return bestRoom;
+    }
+
+    /**
+     * Обявява стая за временно недостъпна.
+     * @param roomNumber номер на стаята
+     * @param from начална дата
+     * @param to крайна дата
+     * @param note бележка
+     * @return true ако операцията е успешна
+     */
+    public boolean markRoomUnavailable(int roomNumber, LocalDate from, LocalDate to, String note){
+        Room room = getRoomByNumber(roomNumber);
+        if(room == null){
+            return false;
+        }
+        room.addUnavailablePeriod(from, to, note);
+        return true;
+    }
+
+    /**
+     * Намира стая по нейн номер.
+     * @param roomNumber номер на стаята
+     * @return стаята или null ако не съществува
+     */
+    public Room getRoomByNumber(int roomNumber){
+        for(Room room : rooms){
+            if(room.getNumber() == roomNumber){
+                return room;
+            }
+        }
+        return null;
+    }
+
+    public String findEmergencyRoom(int beds, LocalDate from, LocalDate to){
+        /** Опит за нормално намиране на стая*/
+        Room direct = findRoom(beds, from, to);
+        if(direct != null){
+            return "Room " + direct.getNumber() + " is available without rearrangement.";
+        }
+
+        /** Опит за разместване*/
+        for(Room occupied : rooms){
+            if(occupied.getBeds() < beds){
+                continue;
+            }
+
+            /** Търся друга стая за преместване*/
+            for(Room alternative : rooms){
+                if(alternative == occupied ){
+                    continue;
+                }
+
+                if(!alternative.isAvailable(from, to)){
+                    continue;
+                }
+
+                if(alternative.getBeds() >= occupied.getBeds()) {
+                    return "Emergency solution: move guests from room " + occupied.getNumber()
+                    + " to room " + alternative.getNumber() + " and free room " + occupied.getNumber();
+                }
+            }
+        }
+        return "No emergency solution found.";
     }
 }
