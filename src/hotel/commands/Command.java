@@ -1,5 +1,7 @@
 package hotel.commands;
 
+import java.io.IOException;
+
 /**
  * Интерфейс за командите намиращи се в Command Line Interface.
  */
@@ -9,5 +11,5 @@ public interface Command {
      * Изпълнява команда с подадени аргументи.
      * @param args аргументи от командния ред
      */
-    void execute(String[] args);
+    void execute(String[] args) throws IOException;
 }

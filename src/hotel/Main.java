@@ -2,20 +2,39 @@ package hotel;
 
 import hotel.commands.*;
 import hotel.core.Hotel;
+import hotel.io.HotelFileManager;
 import hotel.model.Room;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
-    static void main(String[] args) {
+
+    /**
+     * Текущият файл, с който работи приложението.
+     * Използва се при командите open, save и close.
+     */
+    private static File currentFile = null;
+
+    /**
+     * Мениджър за работа с файлове – отговаря за
+     * зареждането и записването на данните за хотела.
+     */
+    private static HotelFileManager fileManager = new HotelFileManager();
+
+    public static void main(String[] args) {
+
 
         Hotel hotel = new Hotel();
+
+
 
         hotel.addRoom(new Room(101,2));
         hotel.addRoom(new Room(102,3));
         hotel.addRoom(new Room(201,4));
+        hotel.addRoom(new Room(202, 5));
 
         Map<String, Command> commands = new HashMap<>();
         commands.put("checkin", new CheckInCommand(hotel));
@@ -25,6 +44,14 @@ public class Main {
         commands.put("find", new FindCommand(hotel));
         commands.put("unavailable", new UnavailableCommand(hotel));
         commands.put("find!", new FindEmergencyCommand(hotel));
+        commands.put("open", new OpenCommand(hotel, fileManager));
+        commands.put("save", new SaveCommand(hotel, fileManager, currentFile));
+        commands.put("saveas", new SaveAsCommand(hotel, fileManager));
+        commands.put("close", new CloseCommand());
+        commands.put("activity", new ActivityCommand(hotel));
+        commands.put("program", new ProgramCommand(hotel));
+
+
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Hotel system started.\n" +

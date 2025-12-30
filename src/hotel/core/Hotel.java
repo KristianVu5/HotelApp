@@ -1,5 +1,6 @@
 package hotel.core;
 
+import hotel.model.Activity;
 import hotel.model.Reservation;
 import hotel.model.Room;
 import hotel.model.UnavailablePeriod;
@@ -14,15 +15,20 @@ import java.util.*;
  */
 public class Hotel {
 
-    /** Списък с всички стаи в хотела */
     private List<Room> rooms;
-
+    private Map<String, Activity> activities;
 
     /**
      * Създава нов хотел без стаи.
      */
     public Hotel() {
         this.rooms = new ArrayList<>();
+        this.activities = new HashMap<>();
+    }
+
+    /** Втръща стая*/
+    public List<Room> getRooms() {
+        return rooms;
     }
 
     /**
@@ -285,5 +291,40 @@ public class Hotel {
             }
         }
         return "No emergency solution found.";
+    }
+
+    public void clear(){
+        rooms.clear();
+    }
+
+    /**
+     * Записва стая за дейност.
+     */
+    public void registerRoomForActivity(int roomNumber, String activityName){
+        Activity activity = activities.get(activityName);
+
+        if(activity == null){
+            activity = new Activity(activityName);
+            activities.put(activityName, activity);
+        }
+
+        activity.addRoom(roomNumber);
+    }
+
+    /**
+     * Извежда всички стаи, записани за дадена дейност.
+     */
+    public void printActivityParticipants(String activityName) {
+        Activity activity = activities.get(activityName);
+
+        if(activity == null){
+            System.out.println("No such activity.");
+            return;
+        }
+
+        System.out.println("Rooms registered for " + activityName + ":" );
+        for(int room : activity.getRoomNumbers()){
+            System.out.println("Room " + room);
+        }
     }
 }

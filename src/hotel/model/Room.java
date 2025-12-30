@@ -14,17 +14,11 @@ import java.util.List;
  */
 
 public class Room {
-    /** Уникален номер на стаята */
     private int number;
-
-/** Брой легла в стаята */
     private int beds;
-
-    /** Списък с всички резервации за стаята */
     private List<Reservation> reservations;
-
-    /** Списък с периоди, в които стаята е недостъпна */
     private List<UnavailablePeriod> unavailablePeriods;
+    private List<String> activities;
 
     /**
      * Създава нова стая с даден номер и брой легла.
@@ -38,6 +32,7 @@ public class Room {
         this.beds = beds;
         this.reservations = new ArrayList<>();
         this.unavailablePeriods = new ArrayList<>();
+        this.activities = new ArrayList<>();
     }
 
     /**
@@ -108,12 +103,33 @@ public class Room {
 
     /**
      * Добавя период, в който стаята е недостъпна.
-     *
-     * @param from начална дата
-     * @param to крайна дата
-     * @param note бележка
      */
     public void addUnavailablePeriod(LocalDate from, LocalDate to, String note){
         unavailablePeriods.add(new UnavailablePeriod(from, to, note));
+    }
+
+    /**
+     * Записва резервация.
+     */
+    public void addReservation(Reservation reservation){
+        reservations.add(reservation);
+    }
+
+    /**
+     * Записва стаята за дейност.
+     */
+    public void addActivity(String activity ){
+        activities.add(activity);
+    }
+
+    public void printProgram(){
+        if(activities.isEmpty()){
+            System.out.println("No activities for this room.");
+            return;
+        }
+        System.out.println("Activities for room " + number + ":");
+        for(String activ : activities) {
+            System.out.println("- " + activ);
+        }
     }
 }
