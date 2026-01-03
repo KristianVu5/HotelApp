@@ -50,6 +50,8 @@ public class Main {
         commands.put("close", new CloseCommand());
         commands.put("activity", new ActivityCommand(hotel));
         commands.put("program", new ProgramCommand(hotel));
+        commands.put("activitylist", new ActivityListCommand(hotel));
+        commands.put("help", new HelpCommand());
 
 
 
